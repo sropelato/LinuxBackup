@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# check if duplicity command exists
+if [ ! `which duplicity` > /dev/null ]
+then
+	echo "The command duplicity does not exist. Please install it first and then run $0 again." 1>&2
+	exit 1
+fi
+
+# check number of arguments
+if [ $# -lt 1 -o $# -gt 2 ];
+then
+	echo "Usage:    $0 [options] backup_root backup_location" 1>&2
+	echo "Options:  -f: force incremental backup" 1>&2
+	echo "Examples: $0 -f /mnt/backup /home/user/Documents" 1>&2
+	exit 1
+fi
+
+backuproot=`readlink -f "${@:(-2):1}"`
+localpath=`readlink -f "${@:(-1):1}"`
+
+for arg in "$@"
+do
+    if [ $arg = "-f" ]
+	then
+		fullbackup=true
+	fi
+done
+
+if [ -n "$backuproot" -a -n "$localpath" ]
+then
+	if [ -n "$fullbackup" ]
+	then
+		duplicity full --no-encryption $localpath file://$backuproot$localpath
+	else
+		duplicity --no-encryption $localpath file://$backuproot$localpath
+	fi
+fi

@@ -1,0 +1,19 @@
+# logfile
+logfile="/var/log/backup/backup_`date +"%Y-%m-%d_%H-%M-%S"`.log"
+
+# dump mysql database to this file
+mysql_dumpfile=/root/Documents/mysqlbackup/dump.sql
+mysql_user=root
+mysql_passwd=foobar
+
+# root path of all backups
+backuproot=/mnt/backup
+
+# backup locations
+locations=(
+/root
+/var/www
+)
+
+# email recipient
+email=foo@bar.com

@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# check if duplicity command exists
+if [ ! `which duplicity` > /dev/null ]
+then
+	echo "The command duplicity does not exist. Please install it first and then run $0 again." 1>&2
+	exit 1
+fi
+
+# check number of arguments
+if [ $# -ne 1 ]
+then
+	echo "Usage:    $0 config_file" 1>&2
+	echo "Examples: $0 /root/Scripts/config1.txt" 1>&2
+	exit 1
+fi
+
+config=`readlink -f $1`
+
+# check if config file exists
+if [ -n "$config" -a -x $config ]
+then
+	. $config
+else
+	echo "The config file $config does not exist or is not executable." 1>&2
+	exit 1
+fi
+
+if [ -n "$backuproot" -a -n "$locations" ]
+then
+	for i in ${locations[@]}
+	do
+		echo "Removing old backups for $i..."
+		duplicity remove-all-but-n-full 1 --no-encryption --force file://$backuproot$i
+	done
+fi
+
+echo "Done"

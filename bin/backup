@@ -1,0 +1,96 @@
+#!/bin/bash
+
+# check if duplicity command exists
+if [ ! `which duplicity` > /dev/null ]
+then
+	echo "The command duplicity does not exist. Please install it first and then run $0 again." 1>&2
+	exit 1
+fi
+
+# check number of arguments
+if [ $# -lt 1 -o $# -gt 2 ]
+then
+	echo "Usage:    $0 [options] config_file" 1>&2
+	echo "Options:  -f: force incremental backup" 1>&2
+	echo "Examples: $0 -f /root/Scripts/config1.txt" 1>&2
+	exit 1
+fi
+
+config=`readlink -f ${@: -1}`
+
+# check if config file exists
+if [ -n "$config" -a -x $config ]
+then
+	. $config
+else
+	echo "The config file $config does not exist or is not executable." 1>&2
+	exit 1
+fi
+
+# redirect all output to log file
+if [ -n "$logfile" ]
+then
+	touch $logfile
+	chmod 700 $logfile
+	exec > $logfile 2>&1
+fi
+
+# check if full backup is required
+for arg in "$@"
+do
+    if [ $arg = "-f" ]
+	then
+		fullbackup=true
+	fi
+done
+
+# dump mysql database if required variables are set
+if [ -n "$mysql_dumpfile" -a -n "$mysql_user" -a -n "$mysql_passwd" ]
+then
+	# check if mysqldump command exists
+	if [ ! `which mysqldump` > /dev/null ]
+	then
+		echo "The command mysqldump does not exist. Please install it first and then run $0 again." 1>&2
+		exit 1
+	fi
+	
+	# dump mysql database
+	echo "Dumping MySQL database..."
+	touch $mysql_dumpfile
+	chmod 700 $mysql_dumpfile
+	mysqldump --user=$mysql_user --password=$mysql_passwd --all-databases > $mysql_dumpfile
+fi
+
+# prepare html document
+summary="<!DOCTYPE html><html><body style=\"font-family:Helvetica\">"
+summary="$summary\n<h2 style=\"color:#336699\">Backup summary `hostname` `date +\"%d %B %Y (%H:%M:%S)\"`</h2>"
+summary="$summary\n<h3 style=\"color:#666666\">Config file: $config</h3>"
+
+# perform and verify backup
+if [ -n "$backuproot" -a -n "$locations" ]
+then
+	for i in ${locations[@]}
+	do	
+		if [ -n "$fullbackup" ]
+		then
+			echo "Backing up $i (full backup)..."
+			/var/lib/backup/bin/performbackup -f $backuproot $i
+		else
+			echo "Backing up $i..."
+			/var/lib/backup/bin/performbackup $backuproot $i
+		fi
+		output="`/var/lib/backup/bin/verifybackup $backuproot $i`"
+		echo -e "$output"
+		summary="$summary\n<h4>$i</h4>"
+		summary="$summary\n<pre style=\"font-family:Courier New\">$output</pre>"
+	done
+fi
+
+summary="$summary\n</body></html>"
+
+# email summary
+if [ -n "$email" ]
+then
+	echo -e "$summary" | mail -a "Content-type: text/html;" -s "Backup summary `hostname`" $email
+fi
+
