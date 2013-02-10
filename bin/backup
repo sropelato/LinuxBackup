@@ -12,7 +12,7 @@ if [ $# -lt 1 -o $# -gt 2 ]
 then
 	echo "Usage:    $0 [options] config_file" 1>&2
 	echo "Options:  -f: force incremental backup" 1>&2
-	echo "Examples: $0 -f /root/Scripts/config1.txt" 1>&2
+	echo "Examples: $0 -f /var/lib/backup/cfg/default" 1>&2
 	exit 1
 fi
 
@@ -30,6 +30,11 @@ fi
 # redirect all output to log file
 if [ -n "$logfile" ]
 then
+	if [ ! -d `dirname "$logfile"` ]
+	then
+		mkdir -p `dirname "$logfile"`
+	fi
+
 	touch $logfile
 	chmod 700 $logfile
 	exec > $logfile 2>&1
@@ -67,23 +72,41 @@ summary="$summary\n<h2 style=\"color:#336699\">Backup summary `hostname` `date +
 summary="$summary\n<h3 style=\"color:#666666\">Config file: $config</h3>"
 
 # perform and verify backup
-if [ -n "$backuproot" -a -n "$locations" ]
+if [ -n "$backupdir" -a -n "$include" -a -n "$exclude" ]
 then
-	for i in ${locations[@]}
-	do	
-		if [ -n "$fullbackup" ]
-		then
-			echo "Backing up $i (full backup)..."
-			/var/lib/backup/bin/performbackup -f $backuproot $i
-		else
-			echo "Backing up $i..."
-			/var/lib/backup/bin/performbackup $backuproot $i
-		fi
-		output="`/var/lib/backup/bin/verifybackup $backuproot $i`"
-		echo -e "$output"
-		summary="$summary\n<h4>$i</h4>"
-		summary="$summary\n<pre style=\"font-family:Courier New\">$output</pre>"
+	include_string=""
+	for i in ${include[@]}
+	do
+		include_string="$include_string --include $i"	
 	done
+	
+	exclude_string=""
+	for i in ${exclude[@]}
+	do
+		exclude_string="$exclude_string --exclude $i"	
+	done
+	
+	if [ "$include_string" == " --include /" ]
+	then
+		include_string=""
+	fi
+	
+	if [ -n "$fullbackup" ]
+	then
+		echo "Staring full backup..."
+		duplicity full --no-encryption $exclude_string $include_string / file://$backupdir
+	else
+		echo "Starting incremental backup..."
+		duplicity --no-encryption $exclude_string $include_string / file://$backupdir
+	fi
+	
+	output="`duplicity collection-status file://$backupdir`"
+	echo -e "$output"
+	summary="$summary\n<h4>$i</h4>"
+	summary="$summary\n<pre style=\"font-family:Courier New\">$output</pre>"
+else
+	echo "backupdir, include and exclude must be set." 1>&2
+	exit 1
 fi
 
 summary="$summary\n</body></html>"

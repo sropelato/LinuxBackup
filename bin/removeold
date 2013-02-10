@@ -11,7 +11,7 @@ fi
 if [ $# -ne 1 ]
 then
 	echo "Usage:    $0 config_file" 1>&2
-	echo "Examples: $0 /root/Scripts/config1.txt" 1>&2
+	echo "Examples: $0 /var/lib/backup/cfg/default" 1>&2
 	exit 1
 fi
 
@@ -26,13 +26,10 @@ else
 	exit 1
 fi
 
-if [ -n "$backuproot" -a -n "$locations" ]
+if [ -n "$backupdir" ]
 then
-	for i in ${locations[@]}
-	do
-		echo "Removing old backups for $i..."
-		duplicity remove-all-but-n-full 1 --no-encryption --force file://$backuproot$i
-	done
+	echo "Removing old backups..."
+	duplicity remove-all-but-n-full 1 --no-encryption --force file://$backupdir
 fi
 
 echo "Done"

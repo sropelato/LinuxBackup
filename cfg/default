@@ -6,13 +6,19 @@ mysql_dumpfile=/root/Documents/mysqlbackup/dump.sql
 mysql_user=root
 mysql_passwd=foobar
 
-# root path of all backups
-backuproot=/mnt/backup
+# path of backup
+backupdir=/mnt/backup
 
 # backup locations
-locations=(
-/root
-/var/www
+include=(
+/
+)
+
+exclude=(
+/mnt
+/proc
+/sys
+/tmp
 )
 
 # email recipient
