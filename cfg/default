@@ -9,14 +9,12 @@ mysql_passwd=foobar
 # path of backup
 backupdir=/mnt/backup
 
-# backup locations
-include=(
-/
-)
-
+# exclude backup locations
 exclude=(
+/dev
 /mnt
 /proc
+/root/.cache/duplicity
 /sys
 /tmp
 )

@@ -72,39 +72,28 @@ summary="$summary\n<h2 style=\"color:#336699\">Backup summary `hostname` `date +
 summary="$summary\n<h3 style=\"color:#666666\">Config file: $config</h3>"
 
 # perform and verify backup
-if [ -n "$backupdir" -a -n "$include" -a -n "$exclude" ]
+if [ -n "$backupdir" -a -n "$exclude" ]
 then
-	include_string=""
-	for i in ${include[@]}
-	do
-		include_string="$include_string --include $i"	
-	done
-	
 	exclude_string=""
 	for i in ${exclude[@]}
 	do
 		exclude_string="$exclude_string --exclude $i"	
 	done
 	
-	if [ "$include_string" == " --include /" ]
-	then
-		include_string=""
-	fi
-	
 	if [ -n "$fullbackup" ]
 	then
 		echo "Staring full backup..."
-		duplicity full --no-encryption $exclude_string $include_string / file://$backupdir
+		duplicity full --no-encryption $exclude_string / file://$backupdir
 	else
 		echo "Starting incremental backup..."
-		duplicity --no-encryption $exclude_string $include_string / file://$backupdir
+		duplicity --no-encryption $exclude_string / file://$backupdir
 	fi
 	
 	output="`duplicity collection-status file://$backupdir`"
 	echo -e "$output"
 	summary="$summary\n<pre style=\"font-family:Courier New\">$output</pre>"
 else
-	echo "backupdir, include and exclude must be set." 1>&2
+	echo "backupdir and exclude must be set." 1>&2
 	exit 1
 fi
 
