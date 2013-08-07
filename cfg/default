@@ -19,5 +19,8 @@ exclude=(
 /tmp
 )
 
+# number of backup chains to keep
+keep_backups=4
+
 # email recipient
 email=foo@bar.com

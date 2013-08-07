@@ -89,6 +89,23 @@ then
 		duplicity --no-encryption $exclude_string / file://$backupdir
 	fi
 	
+	# remove old backups
+	if [ -n "$keep_backups" -a -n "$fullbackup" ]
+	then
+		if [ "$keep_backups" -gt 0 ]
+		then
+			if [ "$keep_backups" -eq 1 ]
+			then
+				echo "Removing old backups. One backup chain will be kept."
+			else
+				echo "Removing old backups. $keep_backups backup chains will be kept."
+			fi
+			duplicity remove-all-but-n-full $keep_backups --no-encryption --force file://$backupdir
+		else
+			echo "keep_backups must be greater than 0." 1>&2
+		fi
+	fi
+	
 	output="`duplicity collection-status file://$backupdir`"
 	echo -e "$output"
 	summary="$summary\n<pre style=\"font-family:Courier New\">$output</pre>"
