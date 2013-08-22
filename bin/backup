@@ -40,6 +40,13 @@ then
 	exec > $logfile 2>&1
 fi
 
+# check if another duplicity job is currently running
+if [ -n "`ps -ef | grep 'duplicity.*--no-encryption' | grep -v grep`" ]
+then
+	echo "Another duplicity job is still running. Aborting."
+	exit 0
+fi
+
 # check if full backup is required
 for arg in "$@"
 do
