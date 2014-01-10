@@ -37,7 +37,17 @@ then
 
 	touch $logfile
 	chmod 700 $logfile
+	
+	if [ 0 -ne $? ]
+	then
+		echo "Error creating or updating logfile: $logfile. Make sure it is in a location where the user running the backup has write privileges." 1>&2
+		exit 1
+	fi
+	
 	exec > $logfile 2>&1
+else
+	echo "logfile must be set." 1>&2
+	exit 1
 fi
 
 # check if another duplicity job is currently running
@@ -71,6 +81,11 @@ then
 	touch $mysql_dumpfile
 	chmod 700 $mysql_dumpfile
 	mysqldump --user=$mysql_user --password=$mysql_passwd --all-databases > $mysql_dumpfile
+	if [ 0 -ne $? ]
+	then
+		echo "Error running mysqldump. Check logfile: $logfile" 1>&2
+		exit 1
+	fi
 fi
 
 # prepare html document
@@ -91,9 +106,21 @@ then
 	then
 		echo "Staring full backup..."
 		duplicity full --no-encryption $exclude_string / file://$backupdir
+		
+		if [ 0 -ne $? ]
+		then
+			echo "Error running duplicity. Check logfile: $logfile" 1>&2
+			exit 1
+		fi
 	else
 		echo "Starting incremental backup..."
 		duplicity --no-encryption $exclude_string / file://$backupdir
+
+		if [ 0 -ne $? ]
+		then
+			echo "Error running duplicity. Check logfile: $logfile" 1>&2
+			exit 1
+		fi
 	fi
 	
 	# remove old backups
@@ -108,12 +135,25 @@ then
 				echo "Removing old backups. $keep_backups backup chains will be kept."
 			fi
 			duplicity remove-all-but-n-full $keep_backups --no-encryption --force file://$backupdir
+			
+			if [ 0 -ne $? ]
+			then
+				echo "Error removing old backups. Check logfile: $logfile" 1>&2
+				exit 1
+			fi
 		else
-			echo "keep_backups must be greater than 0." 1>&2
+			echo "keep_backups, if set, must be greater than 0. The backup has been successful, however. Please fix this before running the next full backup." 1>&2
 		fi
 	fi
 	
 	output="`duplicity collection-status file://$backupdir`"
+	
+	if [ 0 -ne $? ]
+	then
+		echo "Error getting duplicity status. Check logfile: $logfile" 1>&2
+		exit 1
+	fi
+	
 	echo -e "$output"
 	summary="$summary\n<pre style=\"font-family:Courier New\">$output</pre>"
 else
@@ -127,5 +167,11 @@ summary="$summary\n</body></html>"
 if [ -n "$email" ]
 then
 	echo -e "$summary" | mail -a "Content-type: text/html;" -s "Backup summary `hostname`" $email
+	
+	if [ 0 -ne $? ]
+	then
+		echo "Error sending status mail. Check logfile: $logfile" 1>&2
+		exit 1
+	fi
 fi
 
