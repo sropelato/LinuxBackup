@@ -3,15 +3,15 @@
 # check if duplicity command exists
 if [ ! `which duplicity` > /dev/null ]
 then
-	echo "The command duplicity does not exist. Please install it first and then run $0 again." 1>&2
+	echo "The command duplicity does not exist. Please install duplicity first and then run $0 again." 1>&2
 	exit 1
 fi
 
 # check number of arguments
 if [ $# -lt 1 -o $# -gt 2 ]
 then
-	echo "Usage:    $0 [options] config_file" 1>&2
-	echo "Options:  -f: force incremental backup" 1>&2
+	echo "Usage:    $0 [ options ] config_file" 1>&2
+	echo "Options:  -f: force full backup" 1>&2
 	echo "Examples: $0 -f /var/lib/backup/cfg/default" 1>&2
 	exit 1
 fi
@@ -66,29 +66,7 @@ do
 	fi
 done
 
-# dump mysql database if required variables are set
-if [ -n "$mysql_dumpfile" -a -n "$mysql_user" -a -n "$mysql_passwd" ]
-then
-	# check if mysqldump command exists
-	if [ ! `which mysqldump` > /dev/null ]
-	then
-		echo "The command mysqldump does not exist. Please install it first and then run $0 again." 1>&2
-		exit 1
-	fi
-	
-	# dump mysql database
-	echo "Dumping MySQL database..."
-	touch $mysql_dumpfile
-	chmod 700 $mysql_dumpfile
-	mysqldump --user=$mysql_user --password=$mysql_passwd --all-databases > $mysql_dumpfile
-	if [ 0 -ne $? ]
-	then
-		echo "Error running mysqldump. Check logfile: $logfile" 1>&2
-		exit 1
-	fi
-fi
-
-# prepare html document
+# prepare html document for status email
 summary="<!DOCTYPE html><html><body style=\"font-family:Helvetica\">"
 summary="$summary\n<h2 style=\"color:#336699\">Backup summary `hostname` `date +\"%d %B %Y (%H:%M:%S)\"`</h2>"
 summary="$summary\n<h3 style=\"color:#666666\">Config file: $config</h3>"
@@ -142,7 +120,7 @@ then
 				exit 1
 			fi
 		else
-			echo "keep_backups, if set, must be greater than 0. The backup has been successful, however. Please fix this before running the next full backup." 1>&2
+			echo "keep_backups, if set, must be greater than 0. The backup has been successful. However, please fix this before running the next full backup." 1>&2
 		fi
 	fi
 	
@@ -163,7 +141,7 @@ fi
 
 summary="$summary\n</body></html>"
 
-# email summary
+# send status email
 if [ -n "$email" ]
 then
 	echo -e "$summary" | mail -a "Content-type: text/html;" -s "Backup summary `hostname`" $email
