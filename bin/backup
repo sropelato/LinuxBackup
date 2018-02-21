@@ -10,15 +10,15 @@ fi
 # check number of arguments
 if [ $# -lt 1 -o $# -gt 2 ]
 then
-	echo "Usage:    $0 [ options ] config_file" 1>&2
+	echo "Usage:    $0 config_file [ -f ]" 1>&2
 	echo "Options:  -f: force full backup" 1>&2
-	echo "Examples: $0 -f /var/lib/backup/cfg/default" 1>&2
+	echo "Examples: $0 -f /var/lib/backup/cfg/myconfig" 1>&2
 	exit 1
 fi
 
-config=`readlink -f ${@: -1}`
+config=`readlink -f $1`
 
-# check if config file exists
+# read config file
 if [ -n "$config" -a -x $config ]
 then
 	. $config
@@ -72,7 +72,7 @@ summary="$summary\n<h2 style=\"color:#336699\">Backup summary `hostname` `date +
 summary="$summary\n<h3 style=\"color:#666666\">Config file: $config</h3>"
 
 # perform and verify backup
-if [ -n "$backupdir" -a -n "$exclude" ]
+if [ -n "$backupdir" ]
 then
 	exclude_string=""
 	for i in ${exclude[@]}
@@ -135,7 +135,7 @@ then
 	echo -e "$output"
 	summary="$summary\n<pre style=\"font-family:Courier New\">$output</pre>"
 else
-	echo "backupdir and exclude must be set." 1>&2
+	echo "backupdir must be set." 1>&2
 	exit 1
 fi
 

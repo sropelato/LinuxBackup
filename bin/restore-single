@@ -1,0 +1,72 @@
+#!/bin/bash
+
+# check if duplicity command exists
+if [ ! `which duplicity` > /dev/null ]
+then
+	echo "The command duplicity does not exist. Please install duplicity first and then run $0 again." 1>&2
+	exit 1
+fi
+
+# check number of arguments
+if [ $# -lt 4 -o $# -gt 5 ]
+then
+	echo "Usage:    $0 config_file time file target [ -f ]" 1>&2
+	echo "Options:  -f: force override of existing files"
+	echo "Examples: $0 /var/lib/backup/cfg/myconfig now home/foo/importantdocument.txt / -f" 1>&2
+	echo "          $0 /var/lib/backup/cfg/myconfig now home/foo/importantdocument.txt /tmp/restore" 1>&2
+	echo "          $0 /var/lib/backup/cfg/myconfig 2D home/foo/importantdocument.txt /tmp/restore" 1>&2
+	echo "          $0 /var/lib/backup/cfg/myconfig 2018-02-21 home/foo/importantdocument.txt /tmp/restore" 1>&2
+	echo "          $0 /var/lib/backup/cfg/myconfig 2018-02-21T14:30:00+01:00 home/foo/importantdocument.txt /tmp/restore" 1>&2
+	exit 1
+fi
+
+config=`readlink -f $1`
+restore_time=$2
+restore_file=$3
+restore_target=$4
+
+# read config file
+if [ -n "$config" -a -x $config ]
+then
+	. $config
+else
+	echo "The config file $config does not exist or is not executable." 1>&2
+	exit 1
+fi
+
+# check if another duplicity job is currently running
+if [ -n "`ps -ef | grep 'duplicity.*--no-encryption' | grep -v grep`" ]
+then
+	echo "Another duplicity job is still running. Aborting."
+	exit 0
+fi
+
+# check if existing files should be overridden
+for arg in "$@"
+do
+    if [ $arg = "-f" ]
+	then
+		override_existing=true
+	fi
+done
+
+# restore files
+if [ -n "$backupdir" ]
+then
+	echo "Restoring $restore_file from backup as of $restore_time..."
+	if [ -n "$override_existing" ]
+	then
+		duplicity restore --no-encryption --file-to-restore $restore_file --force --time $restore_time file://$backupdir $restore_target
+	else
+		duplicity restore --no-encryption --file-to-restore $restore_file --time $restore_time file://$backupdir $restore_target
+	fi
+	
+	if [ 0 -ne $? ]
+	then
+		echo "Error restoring file(s). Check output above." 1>&2
+		exit 1
+	fi
+else
+	echo "backupdir must be set." 1>&2
+	exit 1
+fi
