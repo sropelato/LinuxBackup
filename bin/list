@@ -8,7 +8,7 @@ then
 fi
 
 # check number of arguments
-if [ $# -lt 1 -o $# -gt 1 ]
+if [ $# -ne 2 ]
 then
 	echo "Usage:    $0 config_file time" 1>&2
 	echo "Examples: $0 /var/lib/backup/cfg/myconfig now" 1>&2
