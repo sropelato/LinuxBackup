@@ -12,11 +12,11 @@ if [ $# -lt 3 -o $# -gt 4 ]
 then
 	echo "Usage:    $0 config_file time target [ -f ]" 1>&2
 	echo "Options:  -f: force override of existing files"
-	echo "Examples: $0 /var/lib/backup/cfg/myconfig now / -f" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig now /tmp/restore" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig 2D /tmp/restore" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig 2018-02-21 /tmp/restore" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig 2018-02-21T14:30:00+01:00 /tmp/restore" 1>&2
+	echo "Examples: $0 /opt/backup/cfg/myconfig now / -f" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig now /tmp/restore" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig 2D /tmp/restore" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig 2018-02-21 /tmp/restore" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig 2018-02-21T14:30:00+01:00 /tmp/restore" 1>&2
 	exit 1
 fi
 

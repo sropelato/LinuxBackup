@@ -12,13 +12,13 @@ if [ $# -lt 4 -o $# -gt 5 ]
 then
 	echo "Usage:    $0 config_file time file target [ -f ]" 1>&2
 	echo "Options:  -f: force override of existing files"
-	echo "Examples: $0 /var/lib/backup/cfg/myconfig now home/foo /home/foo -f" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig now home/foo /tmp/restore/foo" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig now home/foo/importantdocument.txt /home/foo/importantdocument.txt -f" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig now home/foo/importantdocument.txt /tmp/restore/importantdocument.txt" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig 2D home/foo /tmp/restore/foo" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig 2018-02-21 home/foo /tmp/restore/foo" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig 2018-02-21T14:30:00+01:00 home/foo /tmp/restore/foo" 1>&2
+	echo "Examples: $0 /opt/backup/cfg/myconfig now home/foo /home/foo -f" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig now home/foo /tmp/restore/foo" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig now home/foo/importantdocument.txt /home/foo/importantdocument.txt -f" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig now home/foo/importantdocument.txt /tmp/restore/importantdocument.txt" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig 2D home/foo /tmp/restore/foo" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig 2018-02-21 home/foo /tmp/restore/foo" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig 2018-02-21T14:30:00+01:00 home/foo /tmp/restore/foo" 1>&2
 	exit 1
 fi
 

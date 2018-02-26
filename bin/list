@@ -11,11 +11,11 @@ fi
 if [ $# -ne 2 ]
 then
 	echo "Usage:    $0 config_file time" 1>&2
-	echo "Examples: $0 /var/lib/backup/cfg/myconfig now" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig now" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig 2D" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig 2018-02-21" 1>&2
-	echo "          $0 /var/lib/backup/cfg/myconfig 2018-02-21T14:30:00+01:00" 1>&2
+	echo "Examples: $0 /opt/backup/cfg/myconfig now" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig now" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig 2D" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig 2018-02-21" 1>&2
+	echo "          $0 /opt/backup/cfg/myconfig 2018-02-21T14:30:00+01:00" 1>&2
 	exit 1
 fi
 
