@@ -52,7 +52,7 @@ Use cron jobs to periodically create backups.
 
 Add the following two lines to your crontab (`crontab -e`):
 
-    30 2 1 * * /opt/backup/bin/backup -f /opt/backup/cfg/myconfig
+    30 2 1 * * /opt/backup/bin/backup /opt/backup/cfg/myconfig -f
     0 3 * * * /opt/backup/bin/backup /opt/backup/cfg/myconfig
 
 ## Verify backups
