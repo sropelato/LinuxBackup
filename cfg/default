@@ -7,11 +7,38 @@ backupdir=/mnt/backup
 # exclude backup locations
 exclude=(
 /dev
+/run
+/var/run
 /mnt
 /proc
 /root/.cache/duplicity
 /sys
 /tmp
+/boot
+/bin
+/sbin
+/lib
+/lib32
+/lib64
+/libx32
+/initrd.img
+/initrd.img.old
+/vmlinuz
+/vmlinuz.old
+/lost+found
+/usr/bin
+/usr/sbin
+/usr/lib
+/usr/lib32
+/usr/lib64
+/usr/libx32
+/usr/libexec
+/usr/include
+/usr/share
+/usr/src
+/usr/games
+/var/cache
+/var/tmp
 )
 
 # number of backup chains to keep
